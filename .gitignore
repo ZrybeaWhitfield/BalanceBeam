@@ -39,6 +39,9 @@ dist/
 build/
 coverage/
 
+# Quarkus CLI files
+.quarkus/
+
 # Editor directories
 .vscode/
 
