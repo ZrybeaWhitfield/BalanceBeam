@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 public record SimulationResult(
-        long totalInterestPaidCents,
-        int periodsSimulated,
-        LocalDate estimatedPayoffDate,
-        Map<String, Long> endingBalances,
-        List<PeriodSnapshot> snapshots) {
+                long totalInterestPaidCents,
+                int periodsSimulated,
+                LocalDate estimatedPayoffDate,
+                boolean neverPaysOff,
+                Map<String, Long> endingBalances,
+                List<PeriodSnapshot> snapshots) {
 }
