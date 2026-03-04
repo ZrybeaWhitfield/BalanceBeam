@@ -31,10 +31,17 @@ public class DebtPayoffSimulator {
         for (Debt debt : debts) {
             runningBalances.put(debt.id(), debt.balanceCents());
         }
-        for (String debtId : paymentsPerPeriod.keySet()) {
-            if (!runningBalances.containsKey(debtId)) {
-                throw new IllegalArgumentException("Unknown debtId in paymentsPerPeriod: " + debtId);
+        for (Map.Entry<String, Long> entry : paymentsPerPeriod.entrySet()) {
+            if (!runningBalances.containsKey(entry.getKey())) {
+                throw new IllegalArgumentException("Unknown debtId in paymentsPerPeriod: " + entry.getKey());
             }
+            if (entry.getValue() < 0) {
+                throw new IllegalArgumentException("Payment amount must be >= 0 for debtId: " + entry.getKey());
+            }
+        }
+
+        if (runningBalances.values().stream().allMatch(b -> b == 0)) {
+            return new SimulationResult(0L, 0, startDate, false, Map.copyOf(runningBalances), List.of());
         }
 
         long totalInterestPaidCents = 0;
@@ -43,13 +50,15 @@ public class DebtPayoffSimulator {
         List<PeriodSnapshot> snapshots = new ArrayList<>();
 
         for (int period = 0; period < MAX_PERIODS; period++) {
-            Map<String, Long> interestCharged = new HashMap<>();
-            Map<String, Long> principalApplied = new HashMap<>();
+            Map<String, Long> interestCharged = captureSnapshots ? new HashMap<>() : null;
+            Map<String, Long> principalApplied = captureSnapshots ? new HashMap<>() : null;
             for (Debt debt : debts) {
                 long balance = runningBalances.get(debt.id());
                 if (balance == 0) {
-                    interestCharged.put(debt.id(), 0L);
-                    principalApplied.put(debt.id(), 0L);
+                    if (captureSnapshots) {
+                        interestCharged.put(debt.id(), 0L);
+                        principalApplied.put(debt.id(), 0L);
+                    }
                     continue;
                 }
 
@@ -57,13 +66,15 @@ public class DebtPayoffSimulator {
                 long payment = paymentsPerPeriod.getOrDefault(debt.id(), 0L);
 
                 long interestPaid = Math.min(payment, interest);
-                long principalPaid = Math.max(0L, payment - interest);
                 long newBalance = Math.max(0L, balance + interest - payment);
+                long principalPaid = balance - newBalance;
 
                 runningBalances.put(debt.id(), newBalance);
                 totalInterestPaidCents += interestPaid;
-                interestCharged.put(debt.id(), interest);
-                principalApplied.put(debt.id(), principalPaid);
+                if (captureSnapshots) {
+                    interestCharged.put(debt.id(), interest);
+                    principalApplied.put(debt.id(), principalPaid);
+                }
             }
 
             periodsSimulated++;

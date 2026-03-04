@@ -7,4 +7,10 @@ public record PeriodSnapshot(
         Map<String, Long> balancesAfter,
         Map<String, Long> interestCharged,
         Map<String, Long> principalApplied) {
+
+    public PeriodSnapshot {
+        balancesAfter = Map.copyOf(balancesAfter);
+        interestCharged = Map.copyOf(interestCharged);
+        principalApplied = Map.copyOf(principalApplied);
+    }
 }

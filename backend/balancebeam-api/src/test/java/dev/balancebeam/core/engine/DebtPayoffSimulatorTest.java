@@ -137,7 +137,7 @@ class DebtPayoffSimulatorTest {
         @DisplayName("captureSnapshots=true — snapshot count equals periodsSimulated, period 0 values are correct")
         void captureSnapshotsTrue_snapshotsPresentAndCorrect() {
             // balance=10_000, APR=1200bps → interest=100, payment=10_200 → pays off period 1
-            // principalApplied = 10_200 - 100 = 10_100
+            // principalApplied = balance - newBalance = 10_000 - 0 = 10_000
             Debt debt = studentLoan("d1", 10_000L, 1200);
             SimulationResult result = new DebtPayoffSimulator(true)
                     .simulate(List.of(debt), Map.of("d1", 10_200L), START);
@@ -148,7 +148,7 @@ class DebtPayoffSimulatorTest {
             assertEquals(0, snap0.periodIndex());
             assertEquals(0L, snap0.balancesAfter().get("d1"));
             assertEquals(100L, snap0.interestCharged().get("d1"));
-            assertEquals(10_100L, snap0.principalApplied().get("d1"));
+            assertEquals(10_000L, snap0.principalApplied().get("d1"));
         }
 
         @Test
@@ -176,6 +176,15 @@ class DebtPayoffSimulatorTest {
         }
 
         @Test
+        @DisplayName("negative payment amount throws IllegalArgumentException")
+        void negativePayment_throwsIllegalArgumentException() {
+            Debt debt = studentLoan("d1", 10_000L, 1200);
+            assertThrows(IllegalArgumentException.class,
+                    () -> new DebtPayoffSimulator(false)
+                            .simulate(List.of(debt), Map.of("d1", -1L), START));
+        }
+
+        @Test
         @DisplayName("debt with zero starting balance — skipped each period, no interest, pays off immediately")
         void zeroStartingBalance_noInterestAndImmediatelyComplete() {
             Debt debt = studentLoan("d1", 0L, 1200);
@@ -185,6 +194,8 @@ class DebtPayoffSimulatorTest {
             assertEquals(0L, result.totalInterestPaidCents());
             assertEquals(0L, result.endingBalances().get("d1"));
             assertFalse(result.neverPaysOff());
+            assertEquals(0, result.periodsSimulated());
+            assertEquals(START, result.estimatedPayoffDate());
         }
     }
 

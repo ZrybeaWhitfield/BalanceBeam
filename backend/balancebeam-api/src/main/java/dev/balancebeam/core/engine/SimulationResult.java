@@ -11,4 +11,9 @@ public record SimulationResult(
                 boolean neverPaysOff,
                 Map<String, Long> endingBalances,
                 List<PeriodSnapshot> snapshots) {
+
+    public SimulationResult {
+        endingBalances = Map.copyOf(endingBalances);
+        snapshots = List.copyOf(snapshots);
+    }
 }
