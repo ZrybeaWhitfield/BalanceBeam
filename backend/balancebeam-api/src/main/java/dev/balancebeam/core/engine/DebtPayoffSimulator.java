@@ -9,7 +9,7 @@ import java.util.Map;
 import dev.balancebeam.core.model.Debt;
 
 public class DebtPayoffSimulator {
-    private static final int MAX_PERIODS = 360;
+    private static final int MAX_MONTHS = 360;
 
     private final boolean captureSnapshots;
 
@@ -49,7 +49,7 @@ public class DebtPayoffSimulator {
 
         List<PeriodSnapshot> snapshots = new ArrayList<>();
 
-        for (int period = 0; period < MAX_PERIODS; period++) {
+        for (int period = 0; period < MAX_MONTHS; period++) {
             Map<String, Long> interestCharged = captureSnapshots ? new HashMap<>() : null;
             Map<String, Long> principalApplied = captureSnapshots ? new HashMap<>() : null;
             for (Debt debt : debts) {
