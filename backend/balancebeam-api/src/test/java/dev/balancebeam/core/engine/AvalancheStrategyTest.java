@@ -1,6 +1,7 @@
 package dev.balancebeam.core.engine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.Map;
@@ -99,11 +100,99 @@ class AvalancheStrategyTest {
             assertEquals(Map.of("d1",10_000L, "d2", 20_000L), result);
         }
 
+        @Test
+        @DisplayName("When debts are equal, lexicographically lower debt is first")
+        void twoDebtsSameAprSameBalance_extraCoversOneBalance_lowerIdIsTargeted() {
+            Debt debt1 = creditCard("d1", 20_000L, 1200, 0);
+            Debt debt2 = creditCard("d2", 20_000L, 1200, 0);
+            long extraCents = 30_000L;
+
+            AvalancheStrategy strategy = new AvalancheStrategy();
+            Map<String, Long> result = strategy.allocateExtra(List.of(debt1, debt2), extraCents);
+
+            assertEquals(Map.of("d1", 20_000L, "d2", 10_000L), result);
+        }
+
     }
 
     @Nested
     @DisplayName("Edge cases")
     class EdgeCases {
+        @Test
+        @DisplayName("Empty Debts result in empty map")
+        void emptyDebtList_resultIsEmptyMap() {
+            long extraCents = 5_000L;
 
+            AvalancheStrategy strategy = new AvalancheStrategy();
+            Map<String, Long> result = strategy.allocateExtra(List.of(), extraCents);
+
+            assertEquals(Map.of(), result);
+        }
+
+        @Test
+        @DisplayName("When all debts have a zero balance return an empty map")
+        void twoDebts_zeroBalance_returnEmptyMap() {
+            Debt debt1 = creditCard("d1", 0, 1200, 0);
+            Debt debt2 = creditCard("d2", 0, 1200, 0);
+            long extraCents = 30_000L;
+
+            AvalancheStrategy strategy = new AvalancheStrategy();
+
+            Map<String, Long> result = strategy.allocateExtra(List.of(debt1, debt2), extraCents);
+
+            assertEquals(Map.of(), result);
+        }
+
+        @Test
+        @DisplayName("Return an empty map when there are no extra cents")
+        void singleDebt_noExtraCents_returnEmptyMap() {
+            Debt debt1 = creditCard("d1", 10_000L, 1200, 0);
+            long extraCents = 0;
+
+            AvalancheStrategy strategy = new AvalancheStrategy();
+
+            Map<String, Long> result = strategy.allocateExtra(List.of(debt1), extraCents);
+
+            assertEquals(Map.of(), result);
+        }
+
+        @Test
+        @DisplayName("Throws exception when extraCents is less than zero")
+        void singleDebt_extraCentsLessThanZero_throwsException() {
+            Debt debt1 = creditCard("d1", 10_000L, 1200, 0);
+            long extraCents = -1;
+
+            AvalancheStrategy strategy = new AvalancheStrategy();
+
+            assertThrows(IllegalArgumentException.class, () -> strategy.allocateExtra(List.of(debt1), extraCents));
+        }
+
+        @Test
+        @DisplayName("Filter out debts with zero balances")
+        void multipleDebts_zeroAndNonZeroBalances_zeroBalancesExcludedFromResult() {
+            Debt debt1 = creditCard("d1", 20_000L, 1200, 0);
+            Debt debt2 = creditCard("d2", 0, 1800, 0);
+            Debt debt3 = studentLoan("d3", 36_000L, 950, 0);
+            Debt debt4 = studentLoan("d4", 0, 1000, 0);
+            long extraCents = 40_000L;
+
+            AvalancheStrategy strategy = new AvalancheStrategy();
+
+            Map<String, Long> result = strategy.allocateExtra(List.of(debt1, debt2, debt3, debt4), extraCents);
+
+            assertEquals(Map.of("d1", 20_000L, "d3", 20_000L), result);
+        }
+
+        @Test
+        @DisplayName("When extraCents exceeds the balance of a debt allocation matches balance exactly")
+        void singleDebt_extraCentsMoreThanBalance_allocationEqualsBalance() {
+            Debt debt1 = creditCard("d1", 20_000L, 1200, 0);
+            long extraCents = 30_000L;
+
+            AvalancheStrategy strategy = new AvalancheStrategy();
+            Map<String, Long> result = strategy.allocateExtra(List.of(debt1), extraCents);
+
+            assertEquals(Map.of("d1", 20_000L), result);
+        }
     }
 }
