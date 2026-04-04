@@ -29,7 +29,7 @@ public final class AvalancheStrategy implements PayoffStrategy {
      * @param debts      → debts considered for extra allocation (zero-balance debts
      *                   are skipped)
      * @param extraCents → extra amount available in cents; must be >= 0
-     * @return debtId → allocation cents, ordered by avalanche priority
+     * @return debtId → allocation cents
      */
     @Override
     public Map<String, Long> allocateExtra(List<Debt> debts, long extraCents) {
