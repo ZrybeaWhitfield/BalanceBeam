@@ -11,7 +11,8 @@ import dev.balancebeam.core.model.Debt;
 /**
  * Minimum Reduction payoff Strategy
  * 
- * Allocates extra payment to the highest minimum payment first, then cascades any remaining to the next highest minimum payment debt.
+ * Allocates extra payment to the highest minimum payment first, then cascades
+ * any remaining to the next highest minimum payment debt.
  * 
  * Tie-break order:
  * 1) Highest minimumPayment
@@ -20,8 +21,8 @@ import dev.balancebeam.core.model.Debt;
  * 4) Lowest id
  */
 public final class MinReductionStrategy implements PayoffStrategy {
-    private static final Comparator<Debt> MIN_REDUCTION_ORDER = 
-        Comparator.<Debt, Long>comparing(Debt::minimumPaymentCents).reversed()
+    private static final Comparator<Debt> MIN_REDUCTION_ORDER = Comparator
+            .<Debt, Long>comparing(Debt::minimumPaymentCents).reversed()
             .thenComparingLong(Debt::balanceCents)
             .thenComparing(Comparator.comparingInt(Debt::aprBasisPoints).reversed())
             .thenComparing(Debt::id);
@@ -69,7 +70,9 @@ public final class MinReductionStrategy implements PayoffStrategy {
             eligibleDebts.sort(AvalancheStrategy.AVALANCHE_ORDER);
 
             for (Debt debt : eligibleDebts) {
-                if (remaining <= 0) break;
+                if (remaining <= 0) {
+                    break;
+                }
                 long allocation = Math.min(remaining, debt.balanceCents());
                 result.put(debt.id(), allocation);
                 remaining -= allocation;
