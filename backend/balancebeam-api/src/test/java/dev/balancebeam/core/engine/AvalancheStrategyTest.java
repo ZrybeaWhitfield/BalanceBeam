@@ -50,7 +50,7 @@ class AvalancheStrategyTest {
 
             AvalancheStrategy strategy = new AvalancheStrategy();
 
-            Map<String, Long> result = strategy.allocateExtra(List.of(debt1,debt2), extraCents);
+            Map<String, Long> result = strategy.allocateExtra(List.of(debt1, debt2), extraCents);
 
             assertEquals(Map.of("d2", 4_000L), result);
 
@@ -59,7 +59,7 @@ class AvalancheStrategyTest {
         @Test
         @DisplayName("Extra covers first debt completely and remainder is allocated to second debt")
         void twoDebts_extraCentsCoversFirstDebt_remainingIsAllocatedToSecondDebt() {
-            Debt debt1 = creditCard("d1",5_000L, 1200, 0);
+            Debt debt1 = creditCard("d1", 5_000L, 1200, 0);
             Debt debt2 = studentLoan("d2", 18_000L, 1000, 0);
             long extraCents = 10_000L;
 
@@ -74,7 +74,7 @@ class AvalancheStrategyTest {
         void multipleDebts_extraCentsExceedsAllBalance_allocateExtraToEachBalance() {
             Debt debt1 = creditCard("d1", 20_000L, 1200, 0);
             Debt debt2 = creditCard("d2", 80_000L, 1800, 0);
-            Debt debt3 = studentLoan("d3",36_000L, 950, 0);
+            Debt debt3 = studentLoan("d3", 36_000L, 950, 0);
             long extraCents = 140_000L;
 
             AvalancheStrategy strategy = new AvalancheStrategy();
@@ -95,9 +95,9 @@ class AvalancheStrategyTest {
             long extraCents = 30_000L;
 
             AvalancheStrategy strategy = new AvalancheStrategy();
-            Map<String, Long> result = strategy.allocateExtra(List.of(debt1,debt2), extraCents);
+            Map<String, Long> result = strategy.allocateExtra(List.of(debt1, debt2), extraCents);
 
-            assertEquals(Map.of("d1",10_000L, "d2", 20_000L), result);
+            assertEquals(Map.of("d1", 10_000L, "d2", 20_000L), result);
         }
 
         @Test
