@@ -66,8 +66,8 @@ public class DebtPayoffSimulator {
                 long payment = paymentsPerPeriod.getOrDefault(debt.id(), 0L);
 
                 long interestPaid = Math.min(payment, interest);
+                long principalPaid = Math.min(balance, Math.max(0L, payment - interest));
                 long newBalance = Math.max(0L, balance + interest - payment);
-                long principalPaid = balance - newBalance;
 
                 runningBalances.put(debt.id(), newBalance);
                 totalInterestPaidCents += interestPaid;
