@@ -95,7 +95,7 @@ class AvalancheStrategyTest {
             long extraCents = 30_000L;
 
             AvalancheStrategy strategy = new AvalancheStrategy();
-            Map<String, Long> result = strategy.allocateExtra(List.of(debt1,debt2), extraCents);
+            Map<String, Long> result = strategy.allocateExtra(List.of(debt1, debt2), extraCents);
 
             assertEquals(Map.of("d1", 10_000L, "d2", 20_000L), result);
         }

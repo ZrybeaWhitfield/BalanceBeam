@@ -42,14 +42,14 @@ class MinReductionStrategyTest {
         @DisplayName("Allocates extra to debt with highest min payment first")
         void twoDebtsBothPayable_extraIsAllocatedToHighestMinPaymentFirst() {
             Debt debt1 = creditCard("d1", 10_000L, 0, 1_200L);
-            Debt debt2 = creditCard("d2", 20_000L, 0 , 1_800L);
+            Debt debt2 = creditCard("d2", 20_000L, 0, 1_800L);
             long extraCents = 25_000L;
 
             MinReductionStrategy strategy = new MinReductionStrategy();
 
             Map<String, Long> result = strategy.allocateExtra(List.of(debt1, debt2), extraCents);
 
-            assertEquals(Map.of("d1", 5_000L, "d2", 20_000L ), result);
+            assertEquals(Map.of("d1", 5_000L, "d2", 20_000L), result);
         }
 
         @Test
