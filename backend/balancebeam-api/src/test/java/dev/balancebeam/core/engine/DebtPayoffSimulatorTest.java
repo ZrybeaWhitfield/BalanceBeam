@@ -160,6 +160,23 @@ class DebtPayoffSimulatorTest {
 
             assertTrue(result.snapshots().isEmpty());
         }
+
+        @Test
+        @DisplayName("captureSnapshots=true — payment below interest applies zero principal and balance grows")
+        void captureSnapshotsTrue_paymentBelowInterest_principalAppliedIsZero() {
+            // balance=10_000, APR=1200bps → interest=100, payment=50
+            // principalApplied = max(0, payment - interest) = 0
+            // new balance = 10_000 + 100 - 50 = 10_050
+            Debt debt = studentLoan("d1", 10_000L, 1200);
+            SimulationResult result = new DebtPayoffSimulator(true)
+                    .simulate(List.of(debt), Map.of("d1", 50L), START);
+
+            PeriodSnapshot snap0 = result.snapshots().get(0);
+            assertEquals(10_050L, snap0.balancesAfter().get("d1"));
+            assertEquals(100L, snap0.interestCharged().get("d1"));
+            assertEquals(0L, snap0.principalApplied().get("d1"));
+            assertTrue(result.neverPaysOff());
+        }
     }
 
     @Nested
