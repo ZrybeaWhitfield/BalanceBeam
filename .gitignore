@@ -45,6 +45,9 @@ coverage/
 # Editor directories
 .vscode/
 
+# Local Copilot instructions
+.github/instructions/local-personal.instructions.md
+
 # Log files
 npm-debug.log*
 yarn-debug.log*
