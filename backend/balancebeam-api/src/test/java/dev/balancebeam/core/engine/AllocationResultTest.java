@@ -79,16 +79,20 @@ class AllocationResultTest {
     }
 
     @Test
-    @DisplayName("rejects null action lists")
-    void allocationResult_rejectsNullActionLists() {
+    @DisplayName("rejects null minimumPaymentAction list")
+    void allocationResult_rejectsNullMinimumPaymentActionList() {
         Assertions.assertThrows(
             NullPointerException.class,
             () -> new AllocationResult(null, List.of(), 75000L, 10000L, 15000L, 0L)
         );
+    }
+
+    @Test
+    @DisplayName("rejects null extraPaymentActions list")
+    void allocationResult_rejectNullExtraPaymentActionList() {
         Assertions.assertThrows(
-            NullPointerException.class,
-            () -> new AllocationResult(List.of(), null, 75000L, 10000L, 15000L, 0L)
-        );
+                NullPointerException.class,
+                () -> new AllocationResult(List.of(), null, 75000L, 10000L, 15000L, 0L));
     }
 
     @Test

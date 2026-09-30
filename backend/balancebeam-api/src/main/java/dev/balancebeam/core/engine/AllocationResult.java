@@ -10,7 +10,7 @@ import dev.balancebeam.core.plan.PaymentAction;
  * @param minimumPaymentActions minimum payments scheduled for debts due in the
  *                              pay window, ordered by due date
  * @param extraPaymentActions   extra payments allocated by the chosen strategy,
- *                              scheduled on pay date
+ *                              scheduled on pay date and ordered by debt ID
  * @param availableCents        paycheckNet - essentials - buffer (can be
  *                              negative)
  * @param reservedBufferCents   buffer amount held back from the paycheck
