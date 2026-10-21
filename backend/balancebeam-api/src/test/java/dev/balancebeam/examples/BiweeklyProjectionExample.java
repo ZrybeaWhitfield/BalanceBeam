@@ -8,6 +8,7 @@ import java.util.Map;
 import dev.balancebeam.core.engine.AvalancheStrategy;
 import dev.balancebeam.core.engine.BiweeklyPayoffProjector;
 import dev.balancebeam.core.engine.PayoffStrategy;
+import dev.balancebeam.core.engine.SnowballStrategy;
 import dev.balancebeam.core.model.Budget;
 import dev.balancebeam.core.model.Debt;
 import dev.balancebeam.core.model.DebtType;
@@ -21,17 +22,45 @@ import dev.balancebeam.core.plan.PaymentAction;
 import dev.balancebeam.core.plan.ProjectedPayment;
 import dev.balancebeam.core.plan.ProjectionWindow;
 
-/** Editable console example with synthetic values for inspecting a forecast without starting the API. */
+/** Editable student-loan and credit-card forecasts using synthetic values, without starting the API. */
 public final class BiweeklyProjectionExample {
     public static void main(String[] args) {
+        if (args.length > 1) {
+            throw new IllegalArgumentException("Choose one scenario: student-loan or credit-cards");
+        }
+        String scenario = args.length == 0 ? "student-loan" : args[0];
+        switch (scenario) {
+            case "student-loan" -> runStudentLoan();
+            case "credit-cards" -> runCreditCards();
+            default -> throw new IllegalArgumentException("Unknown scenario: " + scenario
+                    + ". Choose student-loan or credit-cards");
+        }
+    }
+
+    private static void runStudentLoan() {
         // Money is in cents and APR is in basis points. Due days are 1–28 so they exist in every month.
         List<ProjectionDebt> debts = List.of(new ProjectionDebt(
                 new Debt("loan-1", "Student loan", DebtType.STUDENT_LOAN,
                         37_025L, 1000, 40_000L, 13, null),
                 500L));
         Budget budget = new Budget(200_000L, 150_000L, 10_000L);
+        runProjection(debts, budget, new AvalancheStrategy());
+    }
+
+    private static void runCreditCards() {
+        List<ProjectionDebt> debts = List.of(
+                new ProjectionDebt(new Debt("card-1", "Credit card 1", DebtType.CREDIT_CARD,
+                        487_520L, 2499, 14_500L, 3, 900_000L)),
+                new ProjectionDebt(new Debt("card-2", "Credit card 2", DebtType.CREDIT_CARD,
+                        732_045L, 1899, 22_000L, 11, 900_000L)),
+                new ProjectionDebt(new Debt("card-3", "Credit card 3", DebtType.CREDIT_CARD,
+                        194_560L, 2149, 6_500L, 21, 400_000L)));
+        Budget budget = new Budget(285_000L, 205_000L, 10_000L);
+        runProjection(debts, budget, new SnowballStrategy());
+    }
+
+    private static void runProjection(List<ProjectionDebt> debts, Budget budget, PayoffStrategy strategy) {
         PaySchedule schedule = new PaySchedule(PayFrequency.BIWEEKLY, LocalDate.of(2026, 10, 6));
-        PayoffStrategy strategy = new AvalancheStrategy();
         ProjectionOptions options = new ProjectionOptions();
 
         PayoffProjection projection = new BiweeklyPayoffProjector().project(debts, budget, schedule, strategy, options);
