@@ -52,4 +52,8 @@ For more backend options (packaging, native builds, etc.), see `backend/balanceb
 
 The frontend folder is currently empty. Future instructions will be added as development progresses.
 
+### Product ideas
+
+Future ideas and the rough path from a local planner to a broader product are kept in [docs/product-ideas.md](docs/product-ideas.md).
+
 ---

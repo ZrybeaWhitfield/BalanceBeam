@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- copyOpeningBalances creates an unmodifiable map of immutable DebtBalance records.
+         PayoffProjectionTest covers input isolation and rejected accessor mutations. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP" />
+        <Class name="dev.balancebeam.core.plan.PayoffProjection" />
+        <Method name="openingBalances" params="" returns="java.util.Map" />
+    </Match>
+
+    <!-- immutableDebtMap creates an unmodifiable map of immutable DebtBalance records.
+         ProjectionWindowTest covers input isolation and rejected accessor mutations. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP" />
+        <Class name="dev.balancebeam.core.plan.ProjectionWindow" />
+        <Method name="endingBalances" params="" returns="java.util.Map" />
+    </Match>
+
+    <!-- immutableDebtMap creates an unmodifiable map of immutable Long values.
+         ProjectionWindowTest covers input isolation and rejected accessor mutations. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP" />
+        <Class name="dev.balancebeam.core.plan.ProjectionWindow" />
+        <Method name="interestChargedCents" params="" returns="java.util.Map" />
+    </Match>
+
+    <!-- List.copyOf and the sorted Stream.toList result isolate the input and prevent mutation.
+         Payment records are immutable; ProjectionWindowTest covers both collection guarantees. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP" />
+        <Class name="dev.balancebeam.core.plan.ProjectionWindow" />
+        <Method name="payments" params="" returns="java.util.List" />
+    </Match>
+</FindBugsFilter>
