@@ -66,7 +66,7 @@ public class BiweeklyAllocator {
 
         for (Debt debt : debtsInWindow) {
             long effectiveMinimum = Math.min(debt.balanceCents(), debt.minimumPaymentCents());
-            totalMinimumsDueCents += effectiveMinimum;
+            totalMinimumsDueCents = Math.addExact(totalMinimumsDueCents, effectiveMinimum);
             long amountCanPay = Math.min(effectiveMinimum, remaining);
 
             if (amountCanPay > 0) {

@@ -280,6 +280,34 @@ class BiweeklyAllocatorTest {
     @DisplayName("Validation")
     class Validation {
         @Test
+        @DisplayName("Accepts capped minimums totaling exactly the largest long value")
+        void cappedMinimumTotalEqualsLongMaximum_returnsExactTotal() {
+            Debt first = new Debt("loan-1", "Student loan", DebtType.STUDENT_LOAN,
+                    Long.MAX_VALUE - 15_000L, 0, Long.MAX_VALUE, 10, null);
+            Debt second = new Debt("loan-2", "Other student loan", DebtType.STUDENT_LOAN,
+                    15_000L, 0, 15_000L, 12, null);
+            PaySchedule schedule = new PaySchedule(PayFrequency.BIWEEKLY, LocalDate.of(2026, 4, 5));
+
+            AllocationResult result = allocator.allocate(List.of(first, second), budget, schedule, strategy);
+
+            assertEquals(Long.MAX_VALUE, result.totalMinimumsDueCents());
+            assertEquals(Long.MAX_VALUE - 90_000L, result.shortfallCents());
+        }
+
+        @Test
+        @DisplayName("Rejects a minimum total one cent beyond the largest long value")
+        void minimumTotalExceedsLongMaximum_throwsArithmeticException() {
+            Debt first = new Debt("loan-1", "Student loan", DebtType.STUDENT_LOAN,
+                    Long.MAX_VALUE - 15_000L, 0, Long.MAX_VALUE - 15_000L, 10, null);
+            Debt second = new Debt("loan-2", "Other student loan", DebtType.STUDENT_LOAN,
+                    15_001L, 0, 15_001L, 12, null);
+            PaySchedule schedule = new PaySchedule(PayFrequency.BIWEEKLY, LocalDate.of(2026, 4, 5));
+
+            assertThrows(ArithmeticException.class,
+                    () -> allocator.allocate(List.of(first, second), budget, schedule, strategy));
+        }
+
+        @Test
         @DisplayName("Rejects a non-biweekly pay schedule")
         void monthlySchedule_throwsIllegalArgumentException() {
             PaySchedule schedule = new PaySchedule(PayFrequency.MONTHLY, LocalDate.of(2026, 4, 5));
