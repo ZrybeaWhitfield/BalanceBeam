@@ -1,6 +1,7 @@
 package dev.balancebeam.core.engine;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -129,11 +130,15 @@ public class BiweeklyAllocator {
 
     private LocalDate dueDateWithinWindow(int dueDayOfMonth, LocalDate windowStart, LocalDate windowEnd) {
         LocalDate candidate = windowStart.withDayOfMonth(dueDayOfMonth);
-        if(!candidate.isBefore(windowStart) && candidate.isBefore(windowEnd)) {
+        if (!candidate.isBefore(windowStart) && candidate.isBefore(windowEnd)) {
             return candidate;
         }
 
-        candidate = windowStart.plusMonths(1).withDayOfMonth(dueDayOfMonth);
+        LocalDate lastIncludedDate = windowEnd.minusDays(1);
+        if (YearMonth.from(windowStart).equals(YearMonth.from(lastIncludedDate))) {
+            return null;
+        }
+        candidate = lastIncludedDate.withDayOfMonth(dueDayOfMonth);
 
         if (!candidate.isBefore(windowStart) && candidate.isBefore(windowEnd)) {
             return candidate;

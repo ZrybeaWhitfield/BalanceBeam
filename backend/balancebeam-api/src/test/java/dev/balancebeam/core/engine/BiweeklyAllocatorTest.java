@@ -67,6 +67,32 @@ class BiweeklyAllocatorTest {
         }
 
         @Test
+        @DisplayName("Excludes a minimum on the first of the next month when that date ends the window")
+        void windowEndsOnFirstOfNextMonth_minimumExcluded() {
+            Debt debt = debtDueOn(1);
+            PaySchedule schedule = new PaySchedule(PayFrequency.BIWEEKLY, LocalDate.of(2026, 12, 18));
+
+            AllocationResult result = allocator.allocate(List.of(debt), budget, schedule, strategy);
+
+            assertEquals(List.of(), result.minimumPaymentActions());
+            assertEquals(0L, result.totalMinimumsDueCents());
+        }
+
+        @Test
+        @DisplayName("A past due day at the maximum date range does not require an unsupported next month")
+        void windowEndsAtMaximumDateWithEarlierDueDay_minimumExcluded() {
+            Debt debt = debtDueOn(1);
+            LocalDate payday = LocalDate.MAX.minusDays(14);
+            PaySchedule schedule = new PaySchedule(PayFrequency.BIWEEKLY, payday);
+
+            AllocationResult result = allocator.allocate(List.of(debt), budget, schedule, strategy);
+
+            assertEquals(List.of(), result.minimumPaymentActions());
+            assertEquals(0L, result.totalMinimumsDueCents());
+            assertEquals(List.of(new PaymentAction(debt.id(), 50_000L, payday)), result.extraPaymentActions());
+        }
+
+        @Test
         @DisplayName("Schedules multiple minimums in due-date order")
         void multipleDebtsDueInWindow_minimumsOrderedByDueDate() {
             Debt later = new Debt("loan-2", "Other student loan", DebtType.STUDENT_LOAN,
